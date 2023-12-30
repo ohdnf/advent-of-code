@@ -2,7 +2,7 @@ import functools
 from collections import Counter
 
 STRENGTH = {
-    'A': 14, 'K': 13, 'Q': 12, 'J': 11, 'T': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
+    'A': 14, 'K': 13, 'Q': 12, 'J': 1, 'T': 10, '9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4, '3': 3, '2': 2
 }
 
 
@@ -27,18 +27,32 @@ high_card = []
 
 def find_type(hand, bid):
     counter = Counter(hand).most_common(5)
+    joker = 0
+    others = []
+    for card, count in counter:
+        if card == 'J':
+            joker += count
+        else:
+            others.append([card, count])
     item = (hand, int(bid))
-    if counter[0][1] == 5:
+    # switch joker to the most
+    if joker == 5:
         five_card.append(item)
-    elif counter[0][1] == 4:
+        return
+    elif joker > 0:
+        others[0][1] += joker
+    # find card type
+    if others[0][1] == 5:
+        five_card.append(item)
+    elif others[0][1] == 4:
         four_card.append(item)
-    elif counter[0][1] == 3 and counter[1][1] == 2:
+    elif others[0][1] == 3 and others[1][1] == 2:
         full_house.append(item)
-    elif counter[0][1] == 3 and counter[1][1] == 1:
+    elif others[0][1] == 3 and others[1][1] == 1:
         triple.append(item)
-    elif counter[0][1] == 2 and counter[1][1] == 2:
+    elif others[0][1] == 2 and others[1][1] == 2:
         two_pair.append(item)
-    elif counter[0][1] == 2 and counter[1][1] == 1:
+    elif others[0][1] == 2 and others[1][1] == 1:
         one_pair.append(item)
     else:
         high_card.append(item)
